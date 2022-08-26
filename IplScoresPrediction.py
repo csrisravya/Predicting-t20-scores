@@ -28,10 +28,10 @@ match_df = match_df.merge(inn_score[['match_id', 'total_runs']], left_on='id', r
 # Cleaning  the data
 match_df['team1'].unique()
 #removing duplicates 
-match_df['team1'] = match_df['team1'].str.replace('Deccan Charges','Sunrisers Hyderabad')
+match_df['team1'] = match_df['team1'].str.replace('Deccan Chargers','Sunrisers Hyderabad')
 match_df['team1'] = match_df['team1'].str.replace('Delhi Daredevils','Delhi Capitals')
-match_df['team1'] = match_df['team2'].str.replace('Deccan Charges','Sunrisers Hyderabad')
-match_df['team1'] = match_df['team2'].str.replace('Delhi Daredevils','Delhi Capitals')
+match_df['team2'] = match_df['team2'].str.replace('Delhi Daredevils','Delhi Capitals')
+match_df['team2'] = match_df['team2'].str.replace('Deccan Chargers','Sunrisers Hyderabad')
 
 
 teams = list(match_df['team1'].unique())
@@ -41,12 +41,18 @@ if(teams.sort()==teams2.sort()):
     teams.remove('Rising Pune Supergiants')
     teams.remove('Kochi Tuskers Kerala')# removing teams which are no longer playing.
     teams.remove('Gujarat Lions')
-    teams.remove('Deccan Chargers')
     teams.remove('Pune Warriors')
 else:
-    print("Give the names of all the playing teams seprated by commas [',']")
-    input_string = input("Enter a list element separated by space ")
-    teams = input_string.split(',')
+    teams = [
+    'Chennai Super Kings',
+    'Delhi Capitals',
+    'Mumbai Indians',
+    'Kolkata Knight Riders',
+    'Kings XI Punjab',
+    'Rajasthan Royals',
+    'Royal Challengers Bangalore',
+    'Sunrisers Hyderabad'
+    ]
 
 match_df = match_df[match_df['team1'].isin(teams)]
 match_df = match_df[match_df['team2'].isin(teams)]

@@ -1,35 +1,62 @@
+# problem statement: win predictor that displays the probability of the chasing team winning an IPL match after every over.
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import warnings
-warnings.filterwarnings( 'ignore')
+import warnings 
+warnings.filterwarnings( 'ignore') 
 
 # Importing data
-# dataset link : https://www.kaggle.com/datasets/ramjidoolla/ipl-data-set
+# dataset obtained from : https://www.kaggle.com/datasets/ramjidoolla/ipl-data-set
 
 match_df = pd.read_csv(r'C:\!1 desktop\akka chelli\akka\reva\Python\IPL\matches.csv')
-match_df.sample(3)
-match_df.info() # gives you all the columns adn non noull values in them
-# match_df.shape() # gives you the no of rows and columns
-dlvr_df = pd.read_csv(r'C:\!1 desktop\akka chelli\akka\reva\Python\IPL\deliveries.csv');
-dlvr_df.head()
+match_df.info() 
+
+dlvr_df = pd.read_csv(r'C:\Python\IPL\deliveries.csv')
 dlvr_df.info()
 
 # Calculating total score in every match
 
-inn_score = dlvr_df.groupby(['id','inning']).sum()['total_runs'] # we sum the scores of eavery match and each inning adn only display the total_runs column
+inn_score = dlvr_df.groupby(['match_id', 'inning']).sum()['total_runs'].reset_index() 
 # keeping only the 1st innings score of the 2 innings score
-inn_score = inn_score[inn_score['inning'] == 1] #display all where inning has value 1 only
+inn_score = inn_score[inn_score['inning'] == 1] 
 
 # MERGE inn_score with match_df
 
-match_df = match_df.merge(inn_score['match_id','total_runs'],left_on="id",right_on = 'match_id')
+match_df = match_df.merge(inn_score[['match_id', 'total_runs']], left_on='id', right_on='match_id')
 
 # Cleaning  the data
 match_df['team1'].unique()
+#removing duplicates 
 match_df['team1'] = match_df['team1'].str.replace('Deccan Charges','Sunrisers Hyderabad')
+match_df['team1'] = match_df['team1'].str.replace('Delhi Daredevils','Delhi Capitals')
+match_df['team1'] = match_df['team2'].str.replace('Deccan Charges','Sunrisers Hyderabad')
+match_df['team1'] = match_df['team2'].str.replace('Delhi Daredevils','Delhi Capitals')
 
-#using isin method to retain rows that are in the lis above  
+
+teams = list(match_df['team1'].unique())
+teams2 = list(match_df['team2'].unique())
+if(teams.sort()==teams2.sort()):
+    teams.remove('Rising Pune Supergiant')
+    teams.remove('Rising Pune Supergiants')
+    teams.remove('Kochi Tuskers Kerala')# removing teams which are no longer playing.
+    teams.remove('Gujarat Lions')
+    teams.remove('Deccan Chargers')
+    teams.remove('Pune Warriors')
+else:
+    print("Give the names of all the playing teams seprated by commas [',']")
+    input_string = input("Enter a list element separated by space ")
+    teams = input_string.split(',')
+
 match_df = match_df[match_df['team1'].isin(teams)]
+match_df = match_df[match_df['team2'].isin(teams)]
 
-match_df['dl_applied'].unique()
+#removing matches where D/L was applied
+match_df['dl_applied'].value_counts() # returns count of unique vaues
+match_df=match_df[match_df['dl_applied']==0]
+
+#getting rid of unnecessary/redundant columns 
+# only the match_id,winner and total_runs are required
+
+match_df=match_df[['match_id','winner','total_runs']]
+
